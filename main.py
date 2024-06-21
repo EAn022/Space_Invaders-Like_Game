@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 
 # Init pygame
 pygame.init()
@@ -11,22 +12,29 @@ screen = pygame.display.set_mode((width, height))
 
 # Set icon and screen name
 pygame.display.set_caption("Space Invaders")
-icon = pygame.image.load("icon-stars.png")
+icon = pygame.image.load("img/icon-stars.png")
 pygame.display.set_icon(icon)
 
 # Player
-playerImage = pygame.image.load("player.png")
+playerImage = pygame.image.load("img/player.png")
 playerX = width / 2 - 40
 playerY = height - 100
 playerXChange = 0
 playerYChange = 0
 
 # Enemy
-enemyImage = pygame.image.load("enemy.png")
+enemyImage = pygame.image.load("img/enemy.png")
 enemyX = random.randint(0, (width - 40))
-enemyY = random.randint(0, (width // 2))
-enemyXChange = 0.3
+enemyY = random.randint(0, (width // 3))
+enemyXChange = 0.4
 enemyYChange = 40
+
+# Bullet
+bulletImage = pygame.image.load("img/bullet.png")
+bulletX = playerX
+bulletY = playerY
+bulletYChange = -0.8
+bulletState = "ready"
 
 
 def player(x, y):
@@ -37,25 +45,53 @@ def enemy(x, y):
     screen.blit(enemyImage, (x, y))
 
 
+def fireBullet(x):
+    global bulletState
+    global bulletX
+    bulletState = "fire"
+    screen.blit(bulletImage, (x, bulletY))
+
+
+def isCollision(enemyX, enemyY, bulletX, bulletY):
+    distance = math.sqrt((math.pow(bulletX - enemyX), 2) + (math.pow(bulletY - enemyY), 2))
+
+    if distance < 20:
+        return True
+    else:
+        return False
+
+
 # Game loop
 running = True
 while running:
+    # RGB in screen
+    red = 0
+    green = 0
+    blue = 0
+    screen.fill((red, green, blue))
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-        # Player movement
+        # General movement
         if event.type == pygame.KEYDOWN:
+            # Player movement
             if event.key == pygame.K_LEFT:
-                playerXChange = -0.2
+                playerXChange = -0.4
             if event.key == pygame.K_RIGHT:
-                playerXChange = 0.2
+                playerXChange = 0.4
 
-            # if event.key == pygame.K_UP:
-            #    playerYChange = -0.2
-            # if event.key == pygame.K_DOWN:
-            #    playerYChange = 0.2
+            # Bullet state to fire
+            if event.key == pygame.K_SPACE:
+                # updates bullet x position only when shoting
+                if bulletState == "ready":
+                    bulletX = playerX
 
+                fireBullet(bulletX + 18)
+                fireBullet(bulletX + 52)
+
+        # Player movement
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 playerXChange = 0
@@ -86,13 +122,15 @@ while running:
         enemyXChange *= -1
         enemyY += enemyYChange
 
-    # RGB in screen
-    red = 0
-    green = 0
-    blue = 0
-    screen.fill((red, green, blue))
+    # Bullet movement
+    if bulletY <= 0:
+        bulletY = playerY
+        bulletState = "ready"
 
-    # playerX += 1
+    if bulletState == "fire":
+        fireBullet(bulletX + 18)
+        fireBullet(bulletX + 52)
+        bulletY += bulletYChange
 
     player(playerX, playerY)
     enemy(enemyX, enemyY)
