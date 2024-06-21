@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+from pygame import mixer
 
 # General speed multiplier
 speed = 4
@@ -50,9 +51,23 @@ bulletState = "ready"
 
 # Score
 scoreValue = 0
-font = pygame.font.Font("freesansbold.ttf", 32)
+font = pygame.font.Font("freesansbold.ttf", 20)
 textX = 10
 textY = 10
+
+# Game Over Screen
+over_font = pygame.font.Font("freesansbold.ttf", 80)
+
+# Background sound
+mixer.music.load("sound/background.wav")
+mixer.music.play(-1)
+
+
+def gameOverText(x,y):
+    overText = over_font.render("Game Over!", True, (255, 255, 255))
+    screen.blit(overText, (x, y))
+    overText = over_font.render("Score: " + str(scoreValue), True, (255, 255, 255))
+    screen.blit(overText, (x + 70, y + 70))
 
 
 def showScore(x,y):
@@ -93,6 +108,7 @@ while running:
     screen.fill((red, green, blue))
 
     for event in pygame.event.get():
+        # Quiting game
         if event.type == pygame.QUIT:
             running = False
 
@@ -109,9 +125,12 @@ while running:
                 # updates bullet x position only when shoting
                 if bulletState == "ready":
                     bulletX = playerX
+                    fireBullet(bulletX + 18)
+                    # fireBullet(bulletX + 52)
 
-                fireBullet(bulletX + 18)
-                fireBullet(bulletX + 52)
+                    # Bullet sound
+                    bulletSound = mixer.Sound("sound/laser.wav")
+                    bulletSound.play()
 
         # Player movement
         if event.type == pygame.KEYUP:
@@ -148,14 +167,29 @@ while running:
         # Collision
         collision = isCollision(enemyX[e], enemyY[e], bulletX, bulletY)
         if collision:
+            # Resets bullet
             bulletState = "ready"
             bulletY = playerY
+
+            # Resets enemy
             enemyX[e] = random.randint(40, (width - 80))
             enemyY[e] = random.randint(40, (width // 3))
             enemyXChange[e] *= -1
+
             scoreValue += 1
 
+            # Enemy death sound
+            enemyDeathSound = mixer.Sound("sound/explosion.wav")
+            enemyDeathSound.play()
+
         enemy(enemyX[e], enemyY[e], e)
+
+        # Game Over
+        if enemyY[e] > playerY - 60:
+            for i in range(numOfEnemies):
+                enemyY[i] = 2000
+            gameOverText(width / 8, height / 3)
+            break
 
     # Bullet movement
     if bulletY <= 0:
