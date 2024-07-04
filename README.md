@@ -1,2 +1,2 @@
 Hello,
-This is a tiny project of a galaga-like game
+This is a tiny project of a galaga-like game using the pygames library.
