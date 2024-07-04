@@ -3,7 +3,7 @@ import random
 import math
 from pygame import mixer
 
-# General speed multiplier
+# General movement speed multiplier
 speed = 4
 
 # Init pygame
@@ -59,7 +59,7 @@ textY = 10
 over_font = pygame.font.Font("freesansbold.ttf", 80)
 
 # Background sound
-mixer.music.load("sound/background.wav")
+mixer.music.load("sound/background2.wav")
 mixer.music.play(-1)
 
 
@@ -129,7 +129,7 @@ while running:
                     # fireBullet(bulletX + 52)
 
                     # Bullet sound
-                    bulletSound = mixer.Sound("sound/laser.wav")
+                    bulletSound = mixer.Sound("sound/laser2.wav")
                     bulletSound.play()
 
         # Player movement
@@ -179,7 +179,7 @@ while running:
             scoreValue += 1
 
             # Enemy death sound
-            enemyDeathSound = mixer.Sound("sound/explosion.wav")
+            enemyDeathSound = mixer.Sound("sound/explosion2.wav")
             enemyDeathSound.play()
 
         enemy(enemyX[e], enemyY[e], e)
@@ -189,6 +189,8 @@ while running:
             for i in range(numOfEnemies):
                 enemyY[i] = 2000
             gameOverText(width / 8, height / 3)
+            mixer.music.fadeout(2000)
+            # mixer.music.stop()
             break
 
     # Bullet movement
